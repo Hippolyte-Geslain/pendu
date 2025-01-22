@@ -54,13 +54,13 @@ def hangman_display(attempts):
     if attempts < 5:
         pygame.draw.line(screen, BLACK, (650, 165), (650, 215), 5)
     if attempts < 4:
-        pygame.draw.line(screen, BLACK, (650, 300), (600, 350), 5)
+        pygame.draw.line(screen, BLACK, (650, 187), (625, 165), 5)
     if attempts < 3:
-        pygame.draw.line(screen, BLACK, (650, 300), (700, 350), 5)
+        pygame.draw.line(screen, BLACK, (650, 187), (675, 165), 5)
     if attempts < 2:
-        pygame.draw.line(screen, BLACK, (650, 400), (600, 450), 5)
+        pygame.draw.line(screen, BLACK, (650, 215), (625, 237), 5)
     if attempts < 1:
-        pygame.draw.line(screen, BLACK, (650, 400), (700,450), 5)
+        pygame.draw.line(screen, BLACK, (650, 215), (675, 237), 5)
     pygame.display.flip()
     
 
@@ -78,6 +78,7 @@ def playing():
         screen.fill((WHIITE))
         word_display(" ".join([letter if letter in guessed_letters else "_" for letter in word]), 50, 150)
         word_display(f"Attemps: {attempts}", 50, 250)
+        word_display(word, 50, 50)
         hangman_display(attempts)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -90,17 +91,18 @@ def playing():
                     else:
                         attempts -= 1
 
-        if attempts == 0:
+        if attempts == 0:        
+            pygame.draw.line(screen, BLACK, (650, 215), (675, 237), 5)
             word_display(f'You lost..The word was "{word}"', 50, 350)
             pygame.display.flip()
             pygame.time.delay(2000)
-            run = False
+            break
 
         if all (letter in guessed_letters for letter in word):
             word_display(f"You won!", 50, 350)
             pygame.display.flip()
             pygame.time.delay(2000)
-            run = False
+            break
 
         clock.tick(30)
     

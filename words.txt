@@ -1,1 +1,1 @@
-{"words": ["example", "hangman", "python", "programming"]}
+{"words": ["example", "hangman", "python", "programming", "psartek", "algorithme"]}
