@@ -13,8 +13,8 @@ RED = (255, 0, 0)
 FONT = pygame.font.Font(None, 60)
 
 # Fichiers locaux
-MOTS_FICHIER = "mot_local.txt"  # Fichier contenant les mots
-SCORES_FICHIER = "scores.txt"   # Fichier pour enregistrer les scores
+MOTS_FICHIER = "mots.txt"
+SCORES_FICHIER = "scores.txt"
 
 # Charger les mots depuis le fichier
 def charger_mots():
@@ -25,20 +25,49 @@ def charger_mots():
         mots = f.read().splitlines()
     return mots
 
+def ajouter_mot(nouveau_mot):
+    with open(MOTS_FICHIER, "a") as f:
+        f.write(nouveau_mot + "\n")
+
 def effacer_mots():
     with open(MOTS_FICHIER, "w") as f:
         f.write("")  # Réinitialise le fichier en l'effaçant
 
-def ajouter_score(score):
-    if not os.path.exists(SCORES_FICHIER):
-        with open(SCORES_FICHIER, "w") as f:
-            f.write("Scores:\n")
-    with open(SCORES_FICHIER, "a") as f:
-        f.write(f"{score}\n")
-
 def choisir_mot():
     mots = charger_mots()
     return random.choice(mots)
+
+# Gestion des scores
+def enregistrer_score(score):
+    with open(SCORES_FICHIER, "a") as f:
+        f.write(f"{score}\n")
+
+def voir_scores():
+    if not os.path.exists(SCORES_FICHIER):
+        return []
+    with open(SCORES_FICHIER, "r") as f:
+        return [int(score) for score in f.read().splitlines()]
+
+def afficher_scores():
+    clock = pygame.time.Clock()
+    scores = voir_scores()
+    while True:
+        screen.fill(WHITE)
+        afficher_texte("Scores:", 50, 50)
+        for i, score in enumerate(scores):
+            afficher_texte(f"Partie {i + 1}: {score} points", 50, 100 + i * 40)
+        afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return
+
+        clock.tick(30)
 
 # Initialiser l'écran
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -47,6 +76,28 @@ pygame.display.set_caption("Jeu du Pendu")
 def afficher_texte(texte, x, y, couleur=BLACK):
     texte_render = FONT.render(texte, True, couleur)
     screen.blit(texte_render, (x, y))
+
+def dessiner_pendu(essais_restants):
+    base_x, base_y = WIDTH // 2, HEIGHT // 2 + 100
+    couleur = BLACK
+    epaisseur = 5
+
+    if essais_restants <= 5:  # Base
+        pygame.draw.line(screen, couleur, (base_x - 100, base_y), (base_x + 100, base_y), epaisseur)
+    if essais_restants <= 4:  # Pilier vertical
+        pygame.draw.line(screen, couleur, (base_x - 50, base_y), (base_x - 50, base_y - 200), epaisseur)
+    if essais_restants <= 3:  # Barre horizontale
+        pygame.draw.line(screen, couleur, (base_x - 50, base_y - 200), (base_x + 50, base_y - 200), epaisseur)
+    if essais_restants <= 2:  # Corde
+        pygame.draw.line(screen, couleur, (base_x + 50, base_y - 200), (base_x + 50, base_y - 150), epaisseur)
+    if essais_restants <= 1:  # Tête
+        pygame.draw.circle(screen, couleur, (base_x + 50, base_y - 130), 20, epaisseur)
+    if essais_restants <= 0:  # Corps
+        pygame.draw.line(screen, couleur, (base_x + 50, base_y - 110), (base_x + 50, base_y - 50), epaisseur)
+        pygame.draw.line(screen, couleur, (base_x + 50, base_y - 100), (base_x + 30, base_y - 70), epaisseur)
+        pygame.draw.line(screen, couleur, (base_x + 50, base_y - 100), (base_x + 70, base_y - 70), epaisseur)
+        pygame.draw.line(screen, couleur, (base_x + 50, base_y - 50), (base_x + 30, base_y - 20), epaisseur)
+        pygame.draw.line(screen, couleur, (base_x + 50, base_y - 50), (base_x + 70, base_y - 20), epaisseur)
 
 def menu_principal():
     clock = pygame.time.Clock()
@@ -57,7 +108,8 @@ def menu_principal():
         afficher_texte("2. Ajouter un mot", WIDTH // 2 - 200, 300)
         afficher_texte("3. Voir les mots", WIDTH // 2 - 200, 400)
         afficher_texte("4. Effacer la liste des mots", WIDTH // 2 - 300, 500)
-        afficher_texte("5. Quitter", WIDTH // 2 - 100, 600)
+        afficher_texte("5. Voir les scores", WIDTH // 2 - 200, 600)
+        afficher_texte("6. Quitter", WIDTH // 2 - 100, 700)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -74,6 +126,8 @@ def menu_principal():
                 elif event.key == pygame.K_4:
                     effacer_mots()
                 elif event.key == pygame.K_5:
+                    afficher_scores()
+                elif event.key == pygame.K_6:
                     pygame.quit()
                     return
 
@@ -105,6 +159,7 @@ def jouer_partie():
     lettres_trouvees = set()
     lettres_tentees = set()
     essais_restants = 6
+    score = 0
     clock = pygame.time.Clock()
 
     def mot_cache():
@@ -116,6 +171,9 @@ def jouer_partie():
         afficher_texte(f"Mot: {mot_cache()}", 50, 150)
         afficher_texte(f"Essais restants: {essais_restants}", 50, 250)
         afficher_texte(f"Lettres tentées: {', '.join(sorted(lettres_tentees))}", 50, 350)
+
+        # Dessiner le pendu
+        dessiner_pendu(essais_restants)
 
         pygame.display.flip()
 
@@ -129,29 +187,37 @@ def jouer_partie():
                     lettres_tentees.add(lettre)
                     if lettre in mot:
                         lettres_trouvees.add(lettre)
+                        score += 10  # Augmente le score pour chaque lettre correcte
                     else:
                         essais_restants -= 1
 
         if essais_restants <= 0:
+            enregistrer_score(score)
             afficher_texte("Perdu!", WIDTH // 2 - 100, HEIGHT // 2, RED)
             pygame.display.flip()
             pygame.time.delay(2000)
-            ajouter_score(0)  # Score de 0 pour une partie perdue
             return
 
         if all(lettre in lettres_trouvees for lettre in mot):
+            score += 50  # Bonus pour avoir gagné
+            enregistrer_score(score)
             afficher_texte("Gagné!", WIDTH // 2 - 100, HEIGHT // 2, RED)
             pygame.display.flip()
             pygame.time.delay(2000)
-            score = essais_restants * 10  # Exemple de calcul de score
-            ajouter_score(score)
             return
 
         clock.tick(30)
 
+
+def ajouter_mot(mot):
+    with open(MOTS_FICHIER, "a") as f:
+        f.write(f"{mot}\n")
+        
+
 def ajouter_mot_interface():
     clock = pygame.time.Clock()
     mot = ""
+
     while True:
         screen.fill(WHITE)
         afficher_texte("Ajouter un mot", WIDTH // 2 - 150, 50)
