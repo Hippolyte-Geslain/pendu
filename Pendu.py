@@ -249,15 +249,30 @@ def ajouter_mot_interface():
                     mot = mot[:-1]
                 else:
                     mot += event.unicode
-    
+
+                    
+def voir_scores():
+    if not os.path.exists(SCORES_FICHIER):
+        print("Création d'un nouveau fichier de scores...")
+        with open(SCORES_FICHIER, "w") as f:
+            pass  # Crée un fichier vide
+        return []
+    with open(SCORES_FICHIER, "r") as f:
+        scores = f.read().splitlines()
+        print(f"Scores trouvés : {scores}")
+        return [int(score) for score in scores if score.isdigit()]
+
 def afficher_scores():
     clock = pygame.time.Clock()
     scores = voir_scores()
     while True:
-        screen.fill(WHITE) #.fill sert a remplir l'ecran avec une couleur
+        screen.fill(WHITE)
         afficher_texte("Scores enregistrés :", 50, 50)
-        for i, score in enumerate(scores): #enumerate sert a donner un index a chaque element de la liste
-            afficher_texte(f"Partie {i + 1}: {score} points", 50, 100 + i * 40)
+        if scores:
+            for i, score in enumerate(scores):
+                afficher_texte(f"Partie {i + 1}: {score} points", 50, 100 + i * 40)
+        else:
+            afficher_texte("Aucun score enregistré pour le moment.", 50, 100, RED)
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
         pygame.display.flip()
 
@@ -268,6 +283,8 @@ def afficher_scores():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return
+
+        clock.tick(30)
 
         clock.tick(30)
 
