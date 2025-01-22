@@ -69,9 +69,14 @@ def afficher_scores():
 
         clock.tick(30)
 
-# Initialiser l'écran
+
+# Initialiser l'écran =========================== 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Jeu du Pendu")
+#==================================================
+
+
+
 
 def afficher_texte(texte, x, y, couleur=BLACK):
     texte_render = FONT.render(texte, True, couleur)
