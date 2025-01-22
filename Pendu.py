@@ -154,6 +154,8 @@ def voir_mots():
 
         clock.tick(30)
 
+
+
 def jouer_partie():
     mot = choisir_mot()
     lettres_trouvees = set()
@@ -167,13 +169,15 @@ def jouer_partie():
 
     while True:
         screen.fill(WHITE)
-        afficher_texte("PENDU", WIDTH // 2 - 100, 50)
-        afficher_texte(f"Mot: {mot_cache()}", 50, 150)
-        afficher_texte(f"Essais restants: {essais_restants}", 50, 250)
-        afficher_texte(f"Lettres tentées: {', '.join(sorted(lettres_tentees))}", 50, 350)
-
-        # Dessiner le pendu
+        
+        # Dessiner le pendu au centre de l'écran
         dessiner_pendu(essais_restants)
+
+        # Afficher les informations textuelles en bas
+        afficher_texte("PENDU", WIDTH // 2 - 100, 50)
+        afficher_texte(f"Mot: {mot_cache()}", 50, HEIGHT - 200)
+        afficher_texte(f"Essais restants: {essais_restants}", 50, HEIGHT - 150)
+        afficher_texte(f"Lettres tentées: {', '.join(sorted(lettres_tentees))}", 50, HEIGHT - 100)
 
         pygame.display.flip()
 
@@ -209,6 +213,9 @@ def jouer_partie():
         clock.tick(30)
 
 
+
+
+
 def ajouter_mot(mot):
     with open(MOTS_FICHIER, "a") as f:
         f.write(f"{mot}\n")
@@ -237,6 +244,25 @@ def ajouter_mot_interface():
                     mot = mot[:-1]
                 else:
                     mot += event.unicode
+    
+def afficher_scores():
+    clock = pygame.time.Clock()
+    scores = voir_scores()
+    while True:
+        screen.fill(WHITE) #.fill sert a remplir l'ecran avec une couleur
+        afficher_texte("Scores enregistrés :", 50, 50)
+        for i, score in enumerate(scores): #enumerate sert a donner un index a chaque element de la liste
+            afficher_texte(f"Partie {i + 1}: {score} points", 50, 100 + i * 40)
+        afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return
 
         clock.tick(30)
 
