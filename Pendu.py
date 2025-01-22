@@ -82,27 +82,34 @@ def afficher_texte(texte, x, y, couleur=BLACK):
     texte_render = FONT.render(texte, True, couleur)
     screen.blit(texte_render, (x, y))
 
+
 def dessiner_pendu(essais_restants):
     base_x, base_y = WIDTH // 2, HEIGHT // 2 + 100
     couleur = BLACK
     epaisseur = 5
 
-    if essais_restants <= 5:  # Base
-        pygame.draw.line(screen, couleur, (base_x - 100, base_y), (base_x + 100, base_y), epaisseur)
-    if essais_restants <= 4:  # Pilier vertical
-        pygame.draw.line(screen, couleur, (base_x - 50, base_y), (base_x - 50, base_y - 200), epaisseur)
-    if essais_restants <= 3:  # Barre horizontale
-        pygame.draw.line(screen, couleur, (base_x - 50, base_y - 200), (base_x + 50, base_y - 200), epaisseur)
-    if essais_restants <= 2:  # Corde
-        pygame.draw.line(screen, couleur, (base_x + 50, base_y - 200), (base_x + 50, base_y - 150), epaisseur)
-    if essais_restants <= 1:  # Tête
+    # Dessiner la structure de base (toujours visible)
+    pygame.draw.line(screen, couleur, (base_x - 100, base_y), (base_x + 100, base_y), epaisseur)  # Base
+    pygame.draw.line(screen, couleur, (base_x - 50, base_y), (base_x - 50, base_y - 200), epaisseur)  # Pilier vertical
+    pygame.draw.line(screen, couleur, (base_x - 50, base_y - 200), (base_x + 50, base_y - 200), epaisseur)  # Barre horizontale
+    pygame.draw.line(screen, couleur, (base_x + 50, base_y - 200), (base_x + 50, base_y - 150), epaisseur)  # Corde
+
+    # Dessiner les éléments selon les essais restants
+    if essais_restants <= 5:  # Tête
         pygame.draw.circle(screen, couleur, (base_x + 50, base_y - 130), 20, epaisseur)
-    if essais_restants <= 0:  # Corps
+    if essais_restants <= 4:  # Corps
         pygame.draw.line(screen, couleur, (base_x + 50, base_y - 110), (base_x + 50, base_y - 50), epaisseur)
+    if essais_restants <= 3:  # Bras gauche
         pygame.draw.line(screen, couleur, (base_x + 50, base_y - 100), (base_x + 30, base_y - 70), epaisseur)
+    if essais_restants <= 2:  # Bras droit
         pygame.draw.line(screen, couleur, (base_x + 50, base_y - 100), (base_x + 70, base_y - 70), epaisseur)
+    if essais_restants <= 1:  # Jambe gauche
         pygame.draw.line(screen, couleur, (base_x + 50, base_y - 50), (base_x + 30, base_y - 20), epaisseur)
+    if essais_restants <= 0:  # Jambe droite
         pygame.draw.line(screen, couleur, (base_x + 50, base_y - 50), (base_x + 70, base_y - 20), epaisseur)
+
+
+
 
 def menu_principal():
     clock = pygame.time.Clock()
@@ -250,7 +257,7 @@ def ajouter_mot_interface():
                 else:
                     mot += event.unicode
 
-                    
+
 def voir_scores():
     if not os.path.exists(SCORES_FICHIER):
         print("Création d'un nouveau fichier de scores...")
