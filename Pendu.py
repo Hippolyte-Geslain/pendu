@@ -6,11 +6,11 @@ import os
 pygame.init()
 
 # Dimensions de la fenêtre
-WIDTH, HEIGHT = 800, 600  
+WIDTH, HEIGHT = 800, 700  
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
-FONT = pygame.font.Font(None, 60)
+FONT = pygame.font.Font(None, 40) 
 
 # Fichiers locaux
 MOTS_FICHIER = "mots.txt"
@@ -103,12 +103,12 @@ def menu_principal():
     clock = pygame.time.Clock()
     while True:
         screen.fill(WHITE)
-        afficher_texte("JEU DU PENDU", WIDTH // 2 - 150, 50)
-        afficher_texte("1. Jouer", WIDTH // 2 - 100, 200)
-        afficher_texte("2. Ajouter un mot", WIDTH // 2 - 200, 300)
-        afficher_texte("3. Voir les mots", WIDTH // 2 - 200, 400)
-        afficher_texte("4. Effacer la liste des mots", WIDTH // 2 - 300, 500)
-        afficher_texte("5. Voir les scores", WIDTH // 2 - 200, 600)
+        afficher_texte("JEU DU PENDU", WIDTH // 2 - 100, 80) #WIDTH // 2 - 150 sert a centrer le texte
+        afficher_texte("1. Jouer", WIDTH // 2 - 60, 200)
+        afficher_texte("2. Ajouter un mot", WIDTH // 2 - 120, 300)
+        afficher_texte("3. Voir les mots", WIDTH // 2 - 110, 400)
+        afficher_texte("4. Effacer la liste des mots", WIDTH // 2 - 176, 500)
+        afficher_texte("5. Voir les scores", WIDTH // 2 - 120, 600)
         afficher_texte("6. Quitter", WIDTH // 2 - 100, 700)
         pygame.display.flip()
 
