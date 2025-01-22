@@ -208,11 +208,16 @@ def jouer_partie():
                         essais_restants -= 1
 
         if essais_restants <= 0:
+            base_x, base_y = WIDTH // 2, HEIGHT // 2 + 100
+            couleur = BLACK
+            epaisseur = 5
+            pygame.draw.line(screen, couleur, (base_x + 50, base_y - 50), (base_x + 70, base_y - 20), epaisseur)  # Jambe droite affichée lorsque le joueur a perdu
             enregistrer_score(score)
             afficher_texte("Perdu!", WIDTH // 2 - 100, HEIGHT // 2, RED)
             pygame.display.flip()
             pygame.time.delay(2000)
             return
+
 
         if all(lettre in lettres_trouvees for lettre in mot):
             score += 50  # Bonus pour avoir gagné
@@ -224,9 +229,7 @@ def jouer_partie():
 
         clock.tick(30)
 
-
-
-
+      
 
 def ajouter_mot(mot):
     with open(MOTS_FICHIER, "a") as f:
