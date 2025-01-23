@@ -1,1 +1,3 @@
-{"words": ["example", "hangman", "python", "programming", "psartek", "algorithme"]}
+{
+    "History": "words.txt"
+}
