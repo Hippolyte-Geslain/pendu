@@ -1,0 +1,11 @@
+Scores: (10 par lettres correcte , 50 si victoire ) 
+20
+80
+80
+0
+100
+100
+80
+80
+20
+10
