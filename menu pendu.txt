@@ -1,0 +1,41 @@
+Joueurs
+	connu --> 
+		choisir joueur existant
+
+	créer un nouveau joueur
+		création d'un joueur
+
+
+		jouer
+
+		mode de difficultés
+			facile
+			moyen
+			difficile
+
+		scores
+
+		mode de difficultés
+			facile
+			moyen
+			difficile
+
+		listes
+
+		mode de difficultés
+			facile
+			moyen
+			difficile
+	
+		supprimer listes
+
+		mode de difficultés
+			facile
+			moyen
+			difficile
+
+Fichiers :
+-mots
+listes(Facile,Moyen,Difficile)
+-joueurs
+score(Facile,Moyen,Difficile)
