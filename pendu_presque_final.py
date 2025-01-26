@@ -2,6 +2,7 @@
 import pygame
 import random
 import os
+import json
 
 #======================Initialisation des paramètres de jeu=================================
 
@@ -10,7 +11,6 @@ import os
 
 # ==========(Bonus)Fichiers locaux : Chargement des mots et des scores==========
 MOTS_FICHIER = "mots.txt"
-SCORES_FICHIER = "scores.txt"
 
 
 
@@ -210,15 +210,15 @@ def effacer_mots():
 
 
 
+SCORES_FICHIER = "scores.json"
 #======================Menu Scores =================================
 def menu_scores():
     clock = pygame.time.Clock()
+    scores=voir_scores()
     while True:
         screen.fill(WHITE)
         afficher_texte("Scores:", WIDTH // 2 - 50, 50)
-        scores = voir_scores()
-        for i, score in enumerate(scores):
-            afficher_texte(f"Partie {i + 1}: {score} points", 50, 100 + i * 40)
+        afficher_texte(json.dumps(scores, indent=4), 50, 100)
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
         afficher_texte("Appuyez sur E pour effacer les scores", 50, HEIGHT - 100, RED)
         pygame.display.flip()
@@ -247,36 +247,25 @@ def menu_scores():
 
 
 #======================(Bonus) Gestion des scores =================================
-def enregistrer_score(score):
-    with open(SCORES_FICHIER, "a") as f:
-        f.write(f"{score}\n")
+def charger_scores():
+    if not os.path.exists(SCORES_FICHIER):
+        return {}
+    try:
+        with open(SCORES_FICHIER, "r") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        return {}
+def enregistrer_score(joueur, score, difficulte): #enregistrer le score du joueur selon la difficulté
+    scores = charger_scores()
+    if joueur not in scores:
+        scores[joueur] = {"facile": [], "moyen": [], "difficile": []}
+    if not scores[joueur][difficulte] or score > max(scores[joueur][difficulte]):
+        scores[joueur][difficulte] = [score]  # Replace with the new highest score
+    with open(SCORES_FICHIER, "w") as f:
+        json.dump(scores, f, indent=4)
 
 def voir_scores():
-    if not os.path.exists(SCORES_FICHIER):
-        return []
-    with open(SCORES_FICHIER, "r") as f:
-        return [int(score) for score in f.read().splitlines()]
-
-def afficher_scores():
-    clock = pygame.time.Clock()
-    scores = voir_scores()
-    while True:
-        screen.fill(WHITE)
-        afficher_texte("Scores:", 50, 50)
-        for i, score in enumerate(scores):
-            afficher_texte(f"Partie {i + 1}: {score} points", 50, 100 + i * 40)
-        afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
-        pygame.display.flip()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    return
-
-        clock.tick(30)
+    return charger_scores()
 
 #==================================================================================
 
@@ -300,7 +289,7 @@ def effacer_scores_interface():
                 pygame.quit()
                 return
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_o:  # Touche 'O' pour confirmer
+                if event.key == pygame.K_o:  # Touche 'O' pour con²firmer
                     effacer_scores()
                     afficher_texte("Scores effacés!", WIDTH // 2 - 100, HEIGHT // 2, RED)
                     pygame.display.flip()
@@ -340,7 +329,6 @@ def menu_difficulte():
                 elif event.key == pygame.K_3:
                     return "difficile"
                 elif event.key == pygame.K_ESCAPE:
-                    pygame.quit()
                     return
 
         clock.tick(30)
@@ -363,9 +351,9 @@ def menu_joueur():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    return "existant"
+                    return menu_joueurexistant()
                 elif event.key == pygame.K_2:
-                    return "nouveau"
+                    return menu_joueur_nouveau()
                 elif event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     return
@@ -373,8 +361,11 @@ def menu_joueur():
 
 
 def ajouter_joueur(joueur):
-    with open(SCORES_FICHIER, "a") as f:
-        f.write(f"{joueur}\n")
+    scores = charger_scores()
+    if joueur not in scores:
+        scores[joueur] = {"facile":[], "moyen":[], "difficile":[]}  # Ajoute un nouveau joueur avec des scores vides
+    with open(SCORES_FICHIER, "w") as f:
+        json.dump(scores, f, indent=4)
 
 
 def menu_joueur_nouveau():
@@ -406,6 +397,7 @@ def menu_joueur_nouveau():
 
 def menu_joueurexistant():
     clock = pygame.time.Clock()
+    joueurs = voir_scores()
     while True:
         screen.fill(WHITE)
         afficher_texte("Choix du Joueur",50,50)
@@ -447,6 +439,9 @@ def menu_joueurexistant():
 
 #====================== Menu principal ============================================
 def menu_principal():
+    difficulte=menu_difficulte()
+    joueur=menu_joueur()
+    
     clock = pygame.time.Clock() # pygame.time.Clock sert a 
     while True:
         screen.fill(WHITE) #.fill sert a 
@@ -466,7 +461,7 @@ def menu_principal():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1: 
-                    jouer_partie(difficulte)
+                    jouer_partie(difficulte, joueur)
                 elif event.key == pygame.K_2:
                     menu_mots()
                 elif event.key == pygame.K_3:
@@ -475,10 +470,6 @@ def menu_principal():
                     difficulte = menu_difficulte()
                 elif event.key == pygame.K_5:
                     joueur = menu_joueur()
-                    if joueur == "nouveau":
-                        menu_joueur_nouveau()
-                    elif joueur == "existant":
-                        joueur = menu_joueurexistant()
                 elif event.key == pygame.K_6:
                     pygame.quit()
                     return
@@ -492,7 +483,7 @@ def menu_principal():
 
 #===============================  BOUCLE PRINCIPALE  ==============================
 
-def jouer_partie(difficulte):
+def jouer_partie(difficulte, joueur):
     mot = choisir_mot()
     lettres_trouvees = set()
     lettres_tentees = set()
@@ -518,6 +509,8 @@ def jouer_partie(difficulte):
 
         # Afficher les informations textuelles en bas
         afficher_texte("PENDU", WIDTH // 2 - 50, 50)
+        afficher_texte("Difficulté: " + difficulte, 50, HEIGHT - 250)
+        afficher_texte("Joueur: " + joueur, 50, HEIGHT - 300)
         afficher_texte(f"Mot: {mot_cache()}", 50, HEIGHT - 200)
         afficher_texte(f"Essais restants: {essais_restants}", 50, HEIGHT - 150)
         afficher_texte(f"Lettres tentées: {', '.join(sorted(lettres_tentees))}", 50, HEIGHT - 100)
@@ -547,7 +540,7 @@ def jouer_partie(difficulte):
 
         #Défaite
         if essais_restants <= 0:
-            enregistrer_score(score)
+            enregistrer_score(joueur,score, difficulte)
             afficher_texte(f"{'Perdu! Le mot était:'}{mot}", WIDTH // 2 - 200, 200, RED)
             
         # (Jambe droite affichée lorsque le joueur a perdu)
@@ -557,14 +550,12 @@ def jouer_partie(difficulte):
             pygame.draw.line(screen, couleur, (base_x + 50, base_y - 50), (base_x + 70, base_y - 20), epaisseur)
             pygame.display.flip()
             pygame.time.delay(2000)
-          
-           
             return
         
         #Victoire
         if all(lettre in lettres_trouvees for lettre in mot):
             score += 50  # Bonus pour avoir gagné
-            enregistrer_score(score)
+            enregistrer_score(joueur,score, difficulte)
             afficher_texte(f"{'Gagné! Le mot était:'}{mot}", WIDTH // 2 - 200, 200, RED)
             pygame.display.flip()
             pygame.time.delay(2000)
