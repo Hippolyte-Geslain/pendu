@@ -15,14 +15,21 @@
     },
     "null": {
         "facile": [],
-        "moyen": [],
-        "difficile": [
-            10
-        ]
+        "moyen": [
+            50
+        ],
+        "difficile": []
     },
     "seif": {
         "facile": [],
         "moyen": [],
+        "difficile": []
+    },
+    "null": {
+        "facile": [],
+        "moyen": [
+            30
+        ],
         "difficile": []
     }
 }
