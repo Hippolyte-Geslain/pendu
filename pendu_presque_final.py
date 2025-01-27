@@ -18,7 +18,7 @@ MOTS_FICHIER = "mots.txt"
 def charger_mots():
     
     # Mots de secours 
-    mots_par_defaut = ["python", "programmation", "ordinateur", "developpement", "jeu", "pendu", "algorithme"]
+    mots_par_defaut = ["python", "programmation", "ordinateur", "developpement", "jeu", "pendu", "algorithme","neurone","ingenieur","github","synchronisation","education","plateforme","lunettes","football","cheveux"]
     if not os.path.exists(MOTS_FICHIER):
         with open(MOTS_FICHIER, "w") as f:
             f.write("\n".join(mots_par_defaut) + "\n")
@@ -219,18 +219,18 @@ def menu_scores():
         screen.fill(WHITE)
         afficher_texte("Scores:", WIDTH // 2 - 50, 50)
         
-        y_offset = 100
+        axe_y = 100
         for joueur, difficulte_scores in scores.items():
-            afficher_texte(f"Joueur: {joueur}", 50, y_offset)
-            y_offset += 60
+            afficher_texte(f"Joueur: {joueur}", 50, axe_y)
+            axe_y += 60
             for difficulte, joueur_scores in difficulte_scores.items():
-                afficher_texte(f"Difficulté: {difficulte}", 70, y_offset)
-                y_offset += 40
+                afficher_texte(f"Difficulté: {difficulte}", 70, axe_y)
+                axe_y += 40
                 if joueur_scores:
-                    afficher_texte(f"Meilleur score: {max(joueur_scores)} points", 90, y_offset)
+                    afficher_texte(f"Meilleur score: {max(joueur_scores)} points", 90, axe_y)
                 else:
-                    afficher_texte("Aucun score", 90, y_offset)
-                y_offset += 40
+                    afficher_texte("Aucun score", 90, axe_y)
+                axe_y += 40
         
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
         afficher_texte("Appuyez sur E pour effacer les scores", 50, HEIGHT - 100, RED)
@@ -339,8 +339,6 @@ def menu_difficulte():
                     return "moyen"
                 elif event.key == pygame.K_3:
                     return "difficile"
-                elif event.key == pygame.K_ESCAPE:
-                    return
 
         clock.tick(30)
 #==================================================================================
