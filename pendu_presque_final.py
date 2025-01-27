@@ -3,6 +3,7 @@ import pygame
 import random
 import os
 import json
+import time
 
 #======================Initialisation des paramètres de jeu=================================
 
@@ -124,6 +125,7 @@ def menu_mots():
     mots = charger_mots()
     mots_par_page = 10
     page_actuel = 0
+    page_total = (len(mots) + mots_par_page - 1) // mots_par_page
     while True:
         index_debut = page_actuel * mots_par_page
         index_fin = index_debut + mots_par_page
@@ -134,7 +136,7 @@ def menu_mots():
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
         afficher_texte("Appuyez sur A pour ajouter un mot", 50, HEIGHT - 150, RED)
         afficher_texte("Appuyez sur E pour effacer les mots", 50, HEIGHT - 100, RED)
-        afficher_texte(f"Page {page_actuel + 1}", WIDTH // 2 - 50, HEIGHT - 200)
+        afficher_texte(f"Page {page_actuel + 1}/{page_total}", WIDTH // 2 - 50, HEIGHT - 200)
         afficher_texte(f"Page suivante: S / Page précédente: P", WIDTH // 2 - 200, HEIGHT - 250, RED)
         pygame.display.flip()
 
@@ -359,7 +361,7 @@ def effacer_scores_interface():
 
 #====================== Menu CHOIX DIFFICULTE ============================================
 
-def menu_difficulte():
+def menu_difficulte(ready,difficulte_actuelle):
     clock = pygame.time.Clock()
     while True:
         screen.fill(WHITE)
@@ -381,13 +383,16 @@ def menu_difficulte():
                     return "moyen"
                 elif event.key == pygame.K_3:
                     return "difficile"
+                if ready==1:
+                    if event.key == pygame.K_ESCAPE:
+                        return difficulte_actuelle
 
         clock.tick(30)
 #==================================================================================
 
 #====================== Menu JOUEUR ============================================
 
-def menu_joueur():
+def menu_joueur(ready, joueur_actuel):
     clock = pygame.time.Clock()
     while True:
         screen.fill(WHITE)
@@ -406,6 +411,9 @@ def menu_joueur():
                     return menu_joueurexistant()
                 elif event.key == pygame.K_2:
                     return menu_joueur_nouveau()
+                if ready == 1:
+                    if event.key == pygame.K_ESCAPE:
+                        return joueur_actuel
         clock.tick(30)
 
 
@@ -435,7 +443,7 @@ def menu_joueur_nouveau():
                 if event.key == pygame.K_RETURN:
                     if joueur:
                         ajouter_joueur(joueur)
-                        return
+                        return joueur
                 elif event.key == pygame.K_BACKSPACE:
                     joueur = joueur[:-1]
                 else:
@@ -484,8 +492,8 @@ def menu_joueurexistant():
 
 #====================== Menu principal ============================================
 def menu_principal():
-    difficulte=menu_difficulte()
-    joueur=menu_joueur()
+    difficulte=menu_difficulte(0,0)
+    joueur=menu_joueur(0,0)
     clock = pygame.time.Clock() # pygame.time.Clock sert a 
     while True:
         screen.fill(WHITE) #.fill sert a 
@@ -511,9 +519,9 @@ def menu_principal():
                 elif event.key == pygame.K_3:
                     menu_scores()
                 elif event.key == pygame.K_4:
-                    difficulte = menu_difficulte()
+                    difficulte = menu_difficulte(1,difficulte)
                 elif event.key == pygame.K_5:
-                    joueur = menu_joueur()
+                    joueur = menu_joueur(1,joueur)
                 elif event.key == pygame.K_6:
                     pygame.quit()
                     return
@@ -533,19 +541,26 @@ def jouer_partie(difficulte, joueur):
     lettres_tentees = set()
     if difficulte == 'facile':
         essais_restants = 10
+        temps_restant = 60
     if difficulte == 'moyen':
         essais_restants = 6
+        temps_restant = 30
     if difficulte == 'difficile':
         essais_restants = 3
+        temps_restant = 10
     score = 0
     clock = pygame.time.Clock()
-
+    constante_temps = time.time()
 #Cachez le mot choisit au hasard 
     def mot_cache():
         return " ".join([lettre if lettre in lettres_trouvees else "_" for lettre in mot])
 
 #Boucle principale
-    while True:
+    while True:  
+        ecart_temps = time.time()
+        if ecart_temps > constante_temps + 1:
+            constante_temps+=1
+            temps_restant-=1
         screen.fill(WHITE)#fond blanc
         
         # Dessiner le pendu au centre de l'écran
@@ -557,8 +572,8 @@ def jouer_partie(difficulte, joueur):
         afficher_texte(f"Joueur: {joueur}", 50, HEIGHT - 300)
         afficher_texte(f"Mot: {mot_cache()}", 50, HEIGHT - 200)
         afficher_texte(f"Essais restants: {essais_restants}", 50, HEIGHT - 150)
-        afficher_texte(f"Lettres tentées: {', '.join(sorted(lettres_tentees))}", 50, HEIGHT - 100)
-
+        afficher_texte(f"Lettres tentées: {', '.join(sorted(lettres_tentees))}", 50, HEIGHT - 100)       
+        afficher_texte(f"{temps_restant}s",600,100)
         pygame.display.flip()
         
         #Boucle de Jeu 
@@ -583,6 +598,8 @@ def jouer_partie(difficulte, joueur):
                         essais_restants -= 1
                         son_corde()
 
+        if temps_restant==0:
+            essais_restants=0
         #Défaite
         if essais_restants <= 0:
             enregistrer_score(joueur,score, difficulte)
@@ -599,7 +616,7 @@ def jouer_partie(difficulte, joueur):
         
         #Victoire
         if all(lettre in lettres_trouvees for lettre in mot):
-            score += 50  # Bonus pour avoir gagné
+            score += 50 + temps_restant  # Bonus pour avoir gagné
             enregistrer_score(joueur,score, difficulte)
             afficher_texte(f"{'Gagné! Le mot était:'}{mot}", WIDTH // 2 - 200, 200, RED)
             son_victoire()
