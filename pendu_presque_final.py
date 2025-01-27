@@ -214,11 +214,24 @@ SCORES_FICHIER = "scores.json"
 #======================Menu Scores =================================
 def menu_scores():
     clock = pygame.time.Clock()
-    scores=voir_scores()
+    scores = voir_scores()
     while True:
         screen.fill(WHITE)
         afficher_texte("Scores:", WIDTH // 2 - 50, 50)
-        afficher_texte(json.dumps(scores, indent=4), 50, 100)
+        
+        y_offset = 100
+        for joueur, difficulte_scores in scores.items():
+            afficher_texte(f"Joueur: {joueur}", 50, y_offset)
+            y_offset += 40
+            for difficulte, joueur_scores in difficulte_scores.items():
+                afficher_texte(f"Difficulté: {difficulte}", 70, y_offset)
+                y_offset += 40
+                if joueur_scores:
+                    afficher_texte(f"Meilleur score: {max(joueur_scores)} points", 90, y_offset)
+                else:
+                    afficher_texte("Aucun score", 90, y_offset)
+                y_offset += 40
+        
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
         afficher_texte("Appuyez sur E pour effacer les scores", 50, HEIGHT - 100, RED)
         pygame.display.flip()
@@ -232,10 +245,7 @@ def menu_scores():
                     return
                 if event.key == pygame.K_e:
                     effacer_scores()
-                    afficher_texte("Scores effacés!", WIDTH // 2 - 100, HEIGHT // 2, RED)
-                    pygame.display.flip()
-                    pygame.time.delay(2000)
-                    return
+                    scores = voir_scores()  # Refresh the scores after deletion
 
         clock.tick(30)
 #==================================================================================
@@ -255,6 +265,7 @@ def charger_scores():
             return json.load(f)
     except json.JSONDecodeError:
         return {}
+    
 def enregistrer_score(joueur, score, difficulte): #enregistrer le score du joueur selon la difficulté
     scores = charger_scores()
     if joueur not in scores:
@@ -397,12 +408,12 @@ def menu_joueur_nouveau():
 
 def menu_joueurexistant():
     clock = pygame.time.Clock()
-    joueurs = voir_scores()
+    joueurs = list(voir_scores().keys())  # Get the list of player names
     while True:
         screen.fill(WHITE)
-        afficher_texte("Choix du Joueur",50,50)
-        for i, joueur in enumerate(joueurs,1):
-            afficher_texte(f"Joueur {i}: {joueur}", 50, 100 + i * 40) 
+        afficher_texte("Choix du Joueur", 50, 50)
+        for i, joueur in enumerate(joueurs, 1):
+            afficher_texte(f"Joueur {i}: {joueur}", 50, 100 + i * 40)
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
         pygame.display.flip()
 
@@ -413,26 +424,13 @@ def menu_joueurexistant():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return
-                if event.key == pygame.K_1:
-                    return "joueur1"
-                if event.key == pygame.K_2:
-                    return "joueur2"
-                if event.key == pygame.K_3:
-                    return "joueur3"
-                if event.key == pygame.K_4:
-                    return "joueur4"
-                if event.key == pygame.K_5:
-                    return "joueur5"
-                if event.key == pygame.K_6:
-                    return "joueur6"
-                if event.key == pygame.K_7:
-                    return "joueur7"
-                if event.key == pygame.K_8:
-                    return "joueur8"
-                if event.key == pygame.K_9:
-                    return "joueur9"
-                if event.key == pygame.K_0:
-                    return "joueur10"
+                if pygame.K_1 <= event.key <= pygame.K_9:
+                    index = event.key - pygame.K_1
+                    if index < len(joueurs):
+                        return joueurs[index]
+                if event.key == pygame.K_0 and len(joueurs) >= 10:
+                    return joueurs[9]
+
         clock.tick(30)
 
 #==================================================================================
@@ -510,7 +508,7 @@ def jouer_partie(difficulte, joueur):
         # Afficher les informations textuelles en bas
         afficher_texte("PENDU", WIDTH // 2 - 50, 50)
         afficher_texte("Difficulté: " + difficulte, 50, HEIGHT - 250)
-        afficher_texte("Joueur: " + joueur, 50, HEIGHT - 300)
+        afficher_texte(f"Joueur: {joueur}", 50, HEIGHT - 300)
         afficher_texte(f"Mot: {mot_cache()}", 50, HEIGHT - 200)
         afficher_texte(f"Essais restants: {essais_restants}", 50, HEIGHT - 150)
         afficher_texte(f"Lettres tentées: {', '.join(sorted(lettres_tentees))}", 50, HEIGHT - 100)

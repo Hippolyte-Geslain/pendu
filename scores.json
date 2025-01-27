@@ -1,8 +1,13 @@
 {
     "joueur1": {
         "facile": [
-            140
+            150
         ],
+        "moyen": [],
+        "difficile": []
+    },
+    "test": {
+        "facile": [],
         "moyen": [],
         "difficile": []
     }
