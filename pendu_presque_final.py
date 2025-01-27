@@ -9,10 +9,26 @@ import json
 #==================================================================================
 
 
-# ==========(Bonus)Fichiers locaux : Chargement des mots et des scores==========
+pygame.mixer.init()
+
+
 MOTS_FICHIER = "mots.txt"
+fichier_son_defaite=pygame.mixer.Sound('sons/defaite.wav')
+fichier_son_victoire=pygame.mixer.Sound('sons/victoire.wav')
+fichier_son_corde=pygame.mixer.Sound('sons/corde.mp3')
+# ==========(Bonus)Sons : Chargement des bruits d'ambiance==========
+def son_defaite():
+    pygame.mixer.Sound.play(fichier_son_defaite)
+
+def son_victoire():
+    pygame.mixer.Sound.play(fichier_son_victoire)
+
+def son_corde():
+    pygame.mixer.Sound.play(fichier_son_corde)
 
 
+
+# ==========(Bonus)Fichiers locaux : Chargement des mots et des scores==========
 
 # Charger les mots depuis le fichier ou utiliser une liste par défaut
 def charger_mots():
@@ -220,7 +236,7 @@ def effacer_mots():
         f.write("")  # Réinitialise le fichier en l'effaçant
 
 #==================================================================================
-
+    
 
 
 SCORES_FICHIER = "scores.json"
@@ -252,7 +268,7 @@ def menu_scores():
         afficher_texte(f"Page {page_actuel +1}/{page_total}", WIDTH // 2 +100, HEIGHT - 155, RED)
         afficher_texte("Page suivante: S / Page précédente: P", 50, HEIGHT - 120, RED)
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
-        afficher_texte("Appuyez sur E pour effacer les scores", 50, HEIGHT - 85, RED)
+        afficher_texte("Appuyez sur E pour effacer les scores et les joueurs", 50, HEIGHT - 85, RED)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -263,7 +279,7 @@ def menu_scores():
                 if event.key == pygame.K_ESCAPE:
                     return
                 if event.key == pygame.K_e:
-                    effacer_scores()
+                    effacer_scores_interface()
                     scores = voir_scores()  # Refresh the scores after deletion
                 if event.key == pygame.K_p:
                     if page_actuel > 0:
@@ -316,7 +332,8 @@ def effacer_scores_interface():
     while True:
         screen.fill(WHITE)
         afficher_texte("Effacer tous les scores", WIDTH // 2 - 150, 50, RED)
-        afficher_texte("Êtes-vous sûr de vouloir effacer tous les scores ?", 50, 150)
+        afficher_texte("Êtes-vous sûr de vouloir effacer tous les scores", 50, 150)
+        afficher_texte("et les joueurs ?",50,200)
         afficher_texte("O - Oui / Echap - Non", 50, 250)
         pygame.display.flip()
 
@@ -327,7 +344,7 @@ def effacer_scores_interface():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_o:  # Touche 'O' pour con²firmer
                     effacer_scores()
-                    afficher_texte("Scores effacés!", WIDTH // 2 - 100, HEIGHT // 2, RED)
+                    afficher_texte("Scores et joueurs effacés!", WIDTH // 2 - 100, HEIGHT // 2, RED)
                     pygame.display.flip()
                     pygame.time.delay(2000)
                     return
@@ -416,12 +433,15 @@ def menu_joueur_nouveau():
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    ajouter_joueur(joueur)
-                    return
+                    if joueur:
+                        ajouter_joueur(joueur)
+                        return
                 elif event.key == pygame.K_BACKSPACE:
                     joueur = joueur[:-1]
                 else:
-                    joueur += event.unicode.lower()
+                    lettre=event.unicode
+                    if lettre.isalpha():
+                        joueur +=lettre 
         clock.tick(30)
 
 
@@ -466,7 +486,6 @@ def menu_joueurexistant():
 def menu_principal():
     difficulte=menu_difficulte()
     joueur=menu_joueur()
-    
     clock = pygame.time.Clock() # pygame.time.Clock sert a 
     while True:
         screen.fill(WHITE) #.fill sert a 
@@ -562,12 +581,13 @@ def jouer_partie(difficulte, joueur):
                         score += 10  # Augmente le score pour chaque lettre correcte
                     else:
                         essais_restants -= 1
+                        son_corde()
 
         #Défaite
         if essais_restants <= 0:
             enregistrer_score(joueur,score, difficulte)
             afficher_texte(f"{'Perdu! Le mot était:'}{mot}", WIDTH // 2 - 200, 200, RED)
-            
+            son_defaite()            
         # (Jambe droite affichée lorsque le joueur a perdu)
             base_x, base_y = WIDTH // 2, HEIGHT // 2 + 100
             couleur = BLACK
@@ -582,6 +602,7 @@ def jouer_partie(difficulte, joueur):
             score += 50  # Bonus pour avoir gagné
             enregistrer_score(joueur,score, difficulte)
             afficher_texte(f"{'Gagné! Le mot était:'}{mot}", WIDTH // 2 - 200, 200, RED)
+            son_victoire()
             pygame.display.flip()
             pygame.time.delay(2000)
 
