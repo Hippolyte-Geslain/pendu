@@ -111,7 +111,7 @@ def menu_mots():
         for i, mot in enumerate(mots):
             afficher_texte(mot, 50, 100 + i * 40)
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
-        afficher_texte("Appuyez sur A pour ajouter un mot", 50, HEIGHT - 100, RED)
+        afficher_texte("Appuyez sur A pour ajouter un mot", 50, HEIGHT - 150, RED)
         afficher_texte("Appuyez sur E pour effacer les mots", 50, HEIGHT - 100, RED)
         pygame.display.flip()
 
@@ -222,7 +222,7 @@ def menu_scores():
         y_offset = 100
         for joueur, difficulte_scores in scores.items():
             afficher_texte(f"Joueur: {joueur}", 50, y_offset)
-            y_offset += 40
+            y_offset += 60
             for difficulte, joueur_scores in difficulte_scores.items():
                 afficher_texte(f"Difficulté: {difficulte}", 70, y_offset)
                 y_offset += 40
@@ -321,11 +321,11 @@ def menu_difficulte():
     clock = pygame.time.Clock()
     while True:
         screen.fill(WHITE)
-        afficher_texte("JEU DU PENDU", WIDTH // 2 - 100, 80) #WIDTH // 2 - 150 sert a centrer le texte
-        afficher_texte("Choisissez la difficulté:", WIDTH // 2 - 150, 100)
+        afficher_texte("JEU DU PENDU", WIDTH // 2 - 150, 50) #WIDTH // 2 - 150 sert a centrer le texte
+        afficher_texte("Choisissez la difficulté:", WIDTH // 2 - 200, 100)
         afficher_texte("1. Facile", WIDTH // 2 - 100, 200)
         afficher_texte("2. Moyen", WIDTH // 2 - 100, 300)
-        afficher_texte("3. Difficile", WIDTH // 2 - 120, 400)
+        afficher_texte("3. Difficile", WIDTH // 2 - 100, 400)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -351,9 +351,10 @@ def menu_joueur():
     clock = pygame.time.Clock()
     while True:
         screen.fill(WHITE)
-        afficher_texte("1. Joueur existant", WIDTH // 2 - 150, 50)
-        afficher_texte("2. Nouveau Joueur", WIDTH // 2 - 100, 200)
-        afficher_texte("Appuyez sur Echap pour quitter", WIDTH // 2 - 200, 300)
+        afficher_texte("Choix du joueur", WIDTH // 2 - 150, 50)
+        afficher_texte("1. Joueur existant", WIDTH // 2 - 150, 150)
+        afficher_texte("2. Nouveau Joueur", WIDTH // 2 - 150, 250)
+        afficher_texte("Appuyez sur Echap pour quitter", WIDTH // 2 - 200, 350)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -413,7 +414,7 @@ def menu_joueurexistant():
         screen.fill(WHITE)
         afficher_texte("Choix du Joueur", 50, 50)
         for i, joueur in enumerate(joueurs, 1):
-            afficher_texte(f"Joueur {i}: {joueur}", 50, 100 + i * 40)
+            afficher_texte(f"Joueur {i}: {joueur}", 50, 100 + i * 50)
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
         pygame.display.flip()
 
@@ -444,12 +445,12 @@ def menu_principal():
     while True:
         screen.fill(WHITE) #.fill sert a 
         afficher_texte("JEU DU PENDU", WIDTH // 2 - 100, 80) #WIDTH // 2 - 150 sert a centrer le texte
-        afficher_texte("1. Jouer", WIDTH // 2 - 60, 200)
+        afficher_texte("1. Jouer", WIDTH // 2 - 80, 200)
         afficher_texte("2. Menu mots", WIDTH // 2 - 80, 300)
         afficher_texte("3. Menu scores", WIDTH // 2 - 80, 400)
         afficher_texte("4. Choix de difficulté", WIDTH // 2 - 80, 500)
-        afficher_texte("5. Choix du joueur", WIDTH // 2 - 60, 600)
-        afficher_texte("6. Quitter", WIDTH // 2 - 60, 800)
+        afficher_texte("5. Choix du joueur", WIDTH // 2 - 80, 600)
+        afficher_texte("6. Quitter", WIDTH // 2 - 80, 800)
         
         pygame.display.flip() #pygame 
 
