@@ -408,9 +408,9 @@ def menu_joueur(ready, joueur_actuel):
                 return
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    return menu_joueurexistant()
+                    return menu_joueurexistant(ready)
                 elif event.key == pygame.K_2:
-                    return menu_joueur_nouveau()
+                    return menu_joueur_nouveau(ready)
                 if ready == 1:
                     if event.key == pygame.K_ESCAPE:
                         return joueur_actuel
@@ -425,7 +425,7 @@ def ajouter_joueur(joueur):
         json.dump(scores, f, indent=4)
 
 
-def menu_joueur_nouveau():
+def menu_joueur_nouveau(ready):
     clock = pygame.time.Clock()
     joueur = ''
     while True:
@@ -446,6 +446,9 @@ def menu_joueur_nouveau():
                         return joueur
                 elif event.key == pygame.K_BACKSPACE:
                     joueur = joueur[:-1]
+                if ready == 1:
+                    if event.key == pygame.K_ESCAPE:
+                        return
                 else:
                     lettre=event.unicode
                     if lettre.isalpha():
@@ -453,7 +456,7 @@ def menu_joueur_nouveau():
         clock.tick(30)
 
 
-def menu_joueurexistant():
+def menu_joueurexistant(ready):
     clock = pygame.time.Clock()
     joueurs = list(voir_scores().keys())  # Get the list of player names
     if joueurs:
@@ -470,8 +473,9 @@ def menu_joueurexistant():
                     pygame.quit()
                     return
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        return
+                    if ready == 1:
+                        if event.key == pygame.K_ESCAPE:
+                            return
                     if pygame.K_1 <= event.key <= pygame.K_9:
                         index = event.key - pygame.K_1
                         if index < len(joueurs):
