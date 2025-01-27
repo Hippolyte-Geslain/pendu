@@ -28,9 +28,10 @@ def charger_mots():
         mots = f.read().splitlines()
 
     # Si le fichier est vide, utiliser les mots par défaut
-    if not mots:
+    if not mots or len(mots) < len(mots_par_defaut):
         mots = mots_par_defaut
-
+        with open(MOTS_FICHIER, "w") as f:
+            f.write("\n".join(mots_par_defaut) + "\n")
     return mots
 
 
@@ -44,7 +45,7 @@ def choisir_mot():
 pygame.init()
 
 # Dimensions fenêtre et couleurs et ecritures
-WIDTH, HEIGHT = 1000, 900  
+WIDTH, HEIGHT = 800, 800  
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -104,15 +105,21 @@ def dessiner_pendu(essais_restants):
 #======================Menu Mots =================================
 def menu_mots():
     clock = pygame.time.Clock()
+    mots = charger_mots()
+    mots_par_page = 10
+    page_actuel = 0
     while True:
+        index_debut = page_actuel * mots_par_page
+        index_fin = index_debut + mots_par_page
         screen.fill(WHITE)
         afficher_texte("Mots:", WIDTH // 2 - 50, 50)
-        mots = charger_mots()
-        for i, mot in enumerate(mots):
+        for i, mot in enumerate(mots[index_debut:index_fin]):
             afficher_texte(mot, 50, 100 + i * 40)
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
         afficher_texte("Appuyez sur A pour ajouter un mot", 50, HEIGHT - 150, RED)
         afficher_texte("Appuyez sur E pour effacer les mots", 50, HEIGHT - 100, RED)
+        afficher_texte(f"Page {page_actuel + 1}", WIDTH // 2 - 50, HEIGHT - 200)
+        afficher_texte(f"Page suivante: S / Page précédente: P", WIDTH // 2 - 200, HEIGHT - 250, RED)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -131,6 +138,12 @@ def menu_mots():
                 if event.key == pygame.K_a:
                     ajouter_mot_interface()
                     return
+                if event.key == pygame.K_p:
+                    if page_actuel > 0:
+                        page_actuel -= 1
+                if event.key == pygame.K_s:
+                    if index_fin < len(mots):
+                        page_actuel += 1
 
         clock.tick(30)
 #==================================================================================
@@ -215,14 +228,19 @@ SCORES_FICHIER = "scores.json"
 def menu_scores():
     clock = pygame.time.Clock()
     scores = voir_scores()
+    page_actuel = 0
+    joueurs_par_page = 2
+    page_total = (len(scores) + joueurs_par_page - 1) // joueurs_par_page
     while True:
         screen.fill(WHITE)
         afficher_texte("Scores:", WIDTH // 2 - 50, 50)
-        
+        index_debut = page_actuel * joueurs_par_page
+        index_fin = index_debut + joueurs_par_page
         axe_y = 100
-        for joueur, difficulte_scores in scores.items():
+        joueurs_liste = list(scores.items())[index_debut:index_fin]
+        for joueur, difficulte_scores in joueurs_liste:
             afficher_texte(f"Joueur: {joueur}", 50, axe_y)
-            axe_y += 60
+            axe_y += 40
             for difficulte, joueur_scores in difficulte_scores.items():
                 afficher_texte(f"Difficulté: {difficulte}", 70, axe_y)
                 axe_y += 40
@@ -231,9 +249,10 @@ def menu_scores():
                 else:
                     afficher_texte("Aucun score", 90, axe_y)
                 axe_y += 40
-        
+        afficher_texte(f"Page {page_actuel +1}/{page_total}", WIDTH // 2 +100, HEIGHT - 155, RED)
+        afficher_texte("Page suivante: S / Page précédente: P", 50, HEIGHT - 120, RED)
         afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
-        afficher_texte("Appuyez sur E pour effacer les scores", 50, HEIGHT - 100, RED)
+        afficher_texte("Appuyez sur E pour effacer les scores", 50, HEIGHT - 85, RED)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -246,6 +265,12 @@ def menu_scores():
                 if event.key == pygame.K_e:
                     effacer_scores()
                     scores = voir_scores()  # Refresh the scores after deletion
+                if event.key == pygame.K_p:
+                    if page_actuel > 0:
+                        page_actuel -= 1
+                if event.key == pygame.K_s:
+                    if index_fin < len(scores):
+                        page_actuel += 1
 
         clock.tick(30)
 #==================================================================================
@@ -364,9 +389,6 @@ def menu_joueur():
                     return menu_joueurexistant()
                 elif event.key == pygame.K_2:
                     return menu_joueur_nouveau()
-                elif event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    return
         clock.tick(30)
 
 
@@ -393,8 +415,6 @@ def menu_joueur_nouveau():
                 pygame.quit()
                 return
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    return
                 if event.key == pygame.K_RETURN:
                     ajouter_joueur(joueur)
                     return
@@ -408,29 +428,37 @@ def menu_joueur_nouveau():
 def menu_joueurexistant():
     clock = pygame.time.Clock()
     joueurs = list(voir_scores().keys())  # Get the list of player names
-    while True:
-        screen.fill(WHITE)
-        afficher_texte("Choix du Joueur", 50, 50)
-        for i, joueur in enumerate(joueurs, 1):
-            afficher_texte(f"Joueur {i}: {joueur}", 50, 100 + i * 50)
-        afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
-        pygame.display.flip()
+    if joueurs:
+        while True:            
+            screen.fill(WHITE)
+            afficher_texte("Choix du Joueur", 50, 50)
+            for i, joueur in enumerate(joueurs, 1):
+                afficher_texte(f"Joueur {i}: {joueur}", 50, 100 + i * 50)
+            afficher_texte("Appuyez sur Echap pour revenir au menu", 50, HEIGHT - 50, RED)
+            pygame.display.flip()
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
                     return
-                if pygame.K_1 <= event.key <= pygame.K_9:
-                    index = event.key - pygame.K_1
-                    if index < len(joueurs):
-                        return joueurs[index]
-                if event.key == pygame.K_0 and len(joueurs) >= 10:
-                    return joueurs[9]
-
-        clock.tick(30)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return
+                    if pygame.K_1 <= event.key <= pygame.K_9:
+                        index = event.key - pygame.K_1
+                        if index < len(joueurs):
+                            return joueurs[index]
+                    if event.key == pygame.K_0 and len(joueurs) >= 10:
+                        return joueurs[9]
+            clock.tick(30)
+    else:
+        while True:
+            screen.fill(WHITE)
+            afficher_texte("Aucun joueur trouvé!", WIDTH // 2 - 150, HEIGHT // 2)
+            afficher_texte("Redirection vers la création d'un nouveau joueur", 50, HEIGHT - 50, RED)
+            pygame.display.flip()
+            pygame.time.delay(2000)
+            return menu_joueur_nouveau()
 
 #==================================================================================
 
@@ -448,7 +476,7 @@ def menu_principal():
         afficher_texte("3. Menu scores", WIDTH // 2 - 80, 400)
         afficher_texte("4. Choix de difficulté", WIDTH // 2 - 80, 500)
         afficher_texte("5. Choix du joueur", WIDTH // 2 - 80, 600)
-        afficher_texte("6. Quitter", WIDTH // 2 - 80, 800)
+        afficher_texte("6. Quitter", WIDTH // 2 - 80, 700)
         
         pygame.display.flip() #pygame 
 
